@@ -4,20 +4,27 @@ import { getAudio, handleDownload } from "./utils/elevenlabs";
 
 function App() {
   const [text, setText] = useState("");
+  const [loading, setLoader] = useState(false);
   const submitText = () => {
-    const texts = text.split(".");
-    texts.forEach(async (t) => {
-      if (!t) return;
-      try {
-        const audioUrl = await getAudio(
-          "EXAVITQu4vr4xnSDxMaL",
-          "fc60b09e4fb00b137b2491df2c84933a",
-          t.trim()
-        );
-        console.log(audioUrl);
-        handleDownload(audioUrl, t.trim());
-      } catch (error) {
-        console.log(error);
+    setLoader(true);
+    const texts = text.split(";");
+    texts.forEach((t, index) => {
+      setTimeout(async () => {
+        if (!t) return;
+        try {
+          const audioUrl = await getAudio(
+            "EXAVITQu4vr4xnSDxMaL",
+            "API KEY",
+            t.trim()
+          );
+          console.log(audioUrl);
+          handleDownload(audioUrl, t.trim());
+        } catch (error) {
+          console.log(error);
+        }
+      }, (index + 1) * 2000);
+      if (index - 1 === texts.length) {
+        setLoader(false);
       }
     });
   };
@@ -29,7 +36,7 @@ function App() {
         onChange={(e) => setText(e.target.value)}
         value={text}
       ></textarea>
-      <button onClick={submitText}>Submit</button>
+      {!loading && <button onClick={submitText}>Submit</button>}
     </div>
   );
 }
